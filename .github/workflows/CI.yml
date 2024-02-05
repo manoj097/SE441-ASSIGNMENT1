@@ -1,0 +1,34 @@
+name: CI Pipeline # I have named it CI Pipeline for my reference
+
+on:
+  push:
+    branches:
+      - main  # this block triggers on push request
+  pull_request:
+    branches:
+      - main  # this block triggers on pull request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # the runs-on specifies the running environment
+
+    # The following block of lines defines the steps to run
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: assignment1  
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9  
+
+      - name: Install Dependencies
+        run: | 
+          pip install pytest  # Install pytest
+
+      - name: Run unit tests
+        run: |
+          pytest calcunittest.py  
