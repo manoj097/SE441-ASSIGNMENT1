@@ -19,7 +19,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          ref: assignment1  
+          ref: ASSIGN1  
           submodules: recursive
 
       - name: Set up Python
