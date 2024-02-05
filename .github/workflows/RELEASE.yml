@@ -18,7 +18,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        # No need to specify 'ref' here; it checks out the commit that the tag points to
+        with:
+          ref: assignment1  
+          submodules: recursive
 
       - name: Set up Python
         uses: actions/setup-python@v2
