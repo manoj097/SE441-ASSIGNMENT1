@@ -1,1 +1,70 @@
+name: Release Pipeline
 
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Trigger on tags like v1.2.3
+
+
+permissions:
+  contents: write
+  actions: write
+
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        # No need to specify 'ref' here; it checks out the commit that the tag points to
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      # Run unit tests
+      - name: Run unit tests
+        run: |
+          pip install pytest
+          pytest calcunittest.py
+
+      # Extracting the version number
+      - name: Extract version number
+        id: extract_version
+        run: echo "::set-output name=version::${GITHUB_REF#refs/tags/v}"
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ steps.extract_version.outputs.version }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Upload release asset for calculator.py
+      - name: Upload calculator.py
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This URL for uploading assets is provided by the create-release step
+          asset_path: calculator.py
+          asset_name: calculator.py
+          asset_content_type: application/octet-stream
+
+      # Upload release asset for calcunittest.py
+      - name: Upload calcunittest.py
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: calcunittest.py
+          asset_name: calcunittest.py
+          asset_content_type: application/octet-stream
